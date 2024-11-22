@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/key.js");
 const User = require("../models/user.js");
+const rateLimit = require('./rateLimiter.js');
+const { rateLimitMiddlewareAdmin } = require("./rateLimiter.js");
 
 verifyToken = (req, res, next) => {
   let token = req.headers["x-access-token"];
@@ -36,6 +38,7 @@ hasRole = (roleAccess) => {
     if (user.role !== roleAccess) {
       return res.status(403).send({ message: 'Access declined' });
     }
+    rateLimitMiddlewareAdmin(req, res, next);
     next();
   };
 };

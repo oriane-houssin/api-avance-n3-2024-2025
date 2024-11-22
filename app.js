@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Todo = require('./todo');
 const authcontroller = require('./controller/authcontroller');
 const authJwt = require('./middlewares/authJwt');
+const rateLimit = require('./middlewares/rateLimiter');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -20,7 +21,7 @@ app.get('/api/todos', [authJwt.verifyToken, authJwt.isExist], async (req, res) =
   }
 });
 
-app.get('/api/todos/:id', [authJwt.verifyToken, authJwt.isExist], async (req, res) => {
+app.get('/api/todos/:id', [authJwt.verifyToken, authJwt.isExist, rateLimit.rateLimitMiddleware], async (req, res) => {
   try {
     const todo = await Todo.findById(req.params.id);
     if (!todo) {
